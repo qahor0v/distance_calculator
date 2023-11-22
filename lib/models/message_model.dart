@@ -33,4 +33,6 @@ class MessageModel {
       userId: map['userId'] as int,
     );
   }
+
+
 }
