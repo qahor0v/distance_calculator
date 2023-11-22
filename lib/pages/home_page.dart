@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:distance_calculator/models/coordinates.dart';
+import 'package:distance_calculator/models/message_model.dart';
 import 'package:distance_calculator/models/result_model.dart';
 import 'package:distance_calculator/services/api_services.dart';
 import 'package:flutter/material.dart';
@@ -13,26 +14,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Distance? distance;
-  TextEditingController startLon = TextEditingController();
-  TextEditingController startLat = TextEditingController();
-  TextEditingController endLon = TextEditingController();
-  TextEditingController endLat = TextEditingController();
+  MessageModel? messageModel;
+
+  TextEditingController title = TextEditingController();
+  TextEditingController body = TextEditingController();
+  TextEditingController userId = TextEditingController();
 
   Widget HBox(double height) => SizedBox(height: height);
 
-  void calculate() async {
-    Coordinates coordinates = Coordinates(
-      startLatitude: startLat.text.trim(),
-      startLongitude: startLon.text.trim(),
-      endLatitude: endLat.text.trim(),
-      endLongitude: endLon.text.trim(),
+  void postMessage() async {
+    MessageModel message = MessageModel(
+      body: body.text.trim(),
+      title: title.text.trim(),
+      userId: int.parse(userId.text.trim()),
     );
-
-    final result = await ApiServices.calculate(coordinates);
-    if (result != null) {
+    final apiMessage = await ApiServices.postMessage(message);
+    if (apiMessage != null) {
       setState(() {
-        distance = result;
+        messageModel = apiMessage;
       });
     }
   }
@@ -53,23 +52,21 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               HBox(8),
-              AppTextField(controller: startLon, text: "Start longitude"),
+              AppTextField(controller: title, text: "Message title"),
               HBox(8),
-              AppTextField(controller: startLat, text: "Start latitude"),
+              AppTextField(controller: body, text: "Message body"),
               HBox(16),
-              AppTextField(controller: endLon, text: "End longitude"),
-              HBox(8),
-              AppTextField(controller: endLat, text: "End latitude"),
+              AppTextField(controller: userId, text: "User Id"),
               HBox(24),
               ElevatedButton.icon(
-                onPressed: calculate,
+                onPressed: postMessage,
                 icon: const Icon(Icons.calculate_outlined),
-                label: const Text("Calculate Distance"),
+                label: const Text("Post"),
               ),
               HBox(24),
-              if (distance != null)
+              if (messageModel != null)
                 Text(
-                  "${distance!.meters} m",
+                  "${messageModel!.id}",
                   style: const TextStyle(color: Colors.black, fontSize: 20),
                 ),
             ],
